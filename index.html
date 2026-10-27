@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Nuestro Armario Virtual</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Librería para tomar un "screenshot" del outfit y compartirlo -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Panel de Visualización del Outfit -->
+        <div id="escenario-outfit" class="escenario">
+            <!-- Capa 0: Cuerpo completo base -->
+            <img src="base-sebastian.png" id="capa-base" class="capa-ropa">
+            <!-- Capas superiores (z-index controla qué va arriba) -->
+            <img src="" id="capa-piernas" class="capa-ropa" style="z-index: 2;">
+            <img src="" id="capa-pies" class="capa-ropa" style="z-index: 3;">
+            <img src="" id="capa-torso" class="capa-ropa" style="z-index: 4;">
+            <img src="" id="capa-accesorios" class="capa-ropa" style="z-index: 5;">
+            <img src="" id="capa-cabeza" class="capa-ropa" style="z-index: 6;">
+        </div>
+
+        <!-- Controles y Subida -->
+        <div class="controles">
+            <h2>Gestión de Armario</h2>
+            <select id="selector-propietario">
+                <option value="sebastian">Armario de Sebastián</option>
+                <option value="manuela">Armario de Manuela</option>
+            </select>
+
+            <div class="zona-subida">
+                <h3>Subir Nueva Prenda</h3>
+                <input type="file" id="input-archivo" accept="image/png">
+                <select id="selector-categoria">
+                    <option value="cabeza">Cabeza</option>
+                    <option value="torso">Torso</option>
+                    <option value="piernas">Piernas</option>
+                    <option value="pies">Pies</option>
+                    <option value="accesorios">Accesorios</option>
+                </select>
+                <button id="btn-subir">Subir Prenda</button>
+            </div>
+
+            <div class="acciones">
+                <button id="btn-guardar">Guardar en Favoritos</button>
+                <button id="btn-compartir">Compartir por WhatsApp</button>
+            </div>
+
+            <!-- Aquí se renderizarán las miniaturas desde Firestore -->
+            <div id="galeria-prendas" class="galeria"></div>
+        </div>
+    </div>
+    <script type="module" src="app.js"></script>
+</body>
+</html>
