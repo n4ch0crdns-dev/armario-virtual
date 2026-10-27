@@ -48,6 +48,40 @@ window.equiparPrenda = (url, categoria) => {
     document.getElementById(`capa-${categoria}`).src = url;
 };
 
+// Función para leer la base de datos y mostrar las prendas guardadas
+async function cargarArmario() {
+    const propietario = document.getElementById('selector-propietario').value;
+    const galeria = document.getElementById('galeria-prendas');
+    galeria.innerHTML = ''; // Limpia la galería actual
+    
+    // Consultar a Firestore por las prendas del propietario seleccionado
+    const q = query(collection(db, "prendas"), where("propietario", "==", propietario));
+    
+    try {
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            const img = document.createElement('img');
+            img.src = data.url_imagen;
+            img.className = 'miniatura';
+            img.title = data.categoria;
+            
+            // Asigna la prenda a la capa correspondiente al hacer clic
+            img.onclick = () => window.equiparPrenda(data.url_imagen, data.categoria);
+            
+            galeria.appendChild(img);
+        });
+    } catch (error) {
+        console.error("Error al cargar la galería:", error);
+    }
+}
+
+// Cargar la galería automáticamente al abrir la página
+cargarArmario();
+
+// Actualizar la galería al cambiar en el selector
+document.getElementById('selector-propietario').addEventListener('change', cargarArmario);
+
 // Generar imagen combinada y compartir
 document.getElementById('btn-compartir').addEventListener('click', async () => {
     const escenario = document.getElementById('escenario-outfit');
