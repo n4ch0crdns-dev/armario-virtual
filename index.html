@@ -2,6 +2,8 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <!-- Etiqueta crucial para que la pantalla se adapte en celulares -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nuestro Armario Virtual</title>
     <link rel="stylesheet" href="style.css">
     <!-- Librería para tomar un "screenshot" del outfit y compartirlo -->
@@ -29,7 +31,7 @@
                 <option value="manuela">Armario de Manuela</option>
             </select>
 
-            <div class="zona-subida">
+            <div class="zona-subida" style="margin-top: 15px;">
                 <h3>Subir Nueva Prenda</h3>
                 <input type="file" id="input-archivo" accept="image/png">
                 <select id="selector-categoria">
@@ -39,12 +41,25 @@
                     <option value="pies">Pies</option>
                     <option value="accesorios">Accesorios</option>
                 </select>
-                <button id="btn-subir">Subir Prenda</button>
+                <button id="btn-subir" style="margin-top: 5px;">Subir Prenda</button>
             </div>
 
-            <div class="acciones">
+            <div class="acciones" style="margin-top: 15px; margin-bottom: 15px;">
                 <button id="btn-guardar">Guardar en Favoritos</button>
                 <button id="btn-compartir">Compartir por WhatsApp</button>
+            </div>
+
+            <!-- Filtros de la Galería -->
+            <div class="filtros-galeria" style="padding-top: 15px; border-top: 1px solid #ccc;">
+                <label for="filtro-categoria"><strong>Filtrar galería: </strong></label>
+                <select id="filtro-categoria">
+                    <option value="todas">Todas las prendas</option>
+                    <option value="cabeza">Cabeza</option>
+                    <option value="torso">Torso</option>
+                    <option value="piernas">Piernas</option>
+                    <option value="pies">Pies</option>
+                    <option value="accesorios">Accesorios</option>
+                </select>
             </div>
 
             <!-- Aquí se renderizarán las miniaturas desde Firestore -->
