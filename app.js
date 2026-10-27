@@ -1,17 +1,18 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 import { getFirestore, collection, addDoc, getDocs, query, where, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAfbpjL6SUxfAkJhlezmRCl5KOrVxJVhGo",
   authDomain: "armario-seba-manuela.firebaseapp.com",
   projectId: "armario-seba-manuela",
-  storageBucket: "armario-seba-manuela.firebasestorage.app",
+  storageBucket: "armario-seba-manuela.firebasestorage.app", // Se mantiene para referencia, pero no se usa para subidas
 };
 
 const app = initializeApp(firebaseConfig);
-const storage = getStorage(app);
 const db = getFirestore(app);
+
+// Tu API Key de ImgBB integrada
+const IMGBB_API_KEY = "e6998a22fe173ca96b63ea90406e2a1d";
 
 // 1. Equipar prenda en el personaje
 window.equiparPrenda = (url, categoria) => {
@@ -21,18 +22,12 @@ window.equiparPrenda = (url, categoria) => {
     }
 };
 
-// 2. Eliminar prenda (de Firebase Storage y Firestore)
-async function eliminarPrenda(docId, urlImagen) {
+// 2. Eliminar prenda (borra el registro de Firestore)
+async function eliminarPrenda(docId) {
     if (!confirm("¿Estás seguro de que quieres eliminar esta prenda?")) return;
 
     try {
-        // Borrar el registro de la base de datos
         await deleteDoc(doc(db, "prendas", docId));
-
-        // Borrar el archivo de imagen en Storage
-        const storageRef = ref(storage, urlImagen);
-        await deleteObject(storageRef);
-
         alert("Prenda eliminada con éxito.");
         cargarArmario();
     } catch (error) {
@@ -80,8 +75,8 @@ async function cargarArmario() {
             btnBorrar.className = 'btn-borrar';
             btnBorrar.title = 'Eliminar prenda';
             btnBorrar.onclick = (e) => {
-                e.stopPropagation(); // Evita que al hacer clic en borrar se intente equipar la ropa
-                eliminarPrenda(id, data.url_imagen);
+                e.stopPropagation();
+                eliminarPrenda(id);
             };
 
             contenedor.appendChild(img);
@@ -93,7 +88,7 @@ async function cargarArmario() {
     }
 }
 
-// 4. Subir nueva prenda desde el explorador
+// 4. Subir nueva prenda a ImgBB y registrar en Firestore
 const btnSubir = document.getElementById('btn-subir');
 if (btnSubir) {
     btnSubir.addEventListener('click', async () => {
@@ -104,11 +99,23 @@ if (btnSubir) {
 
         if (!archivo) return alert("Selecciona una imagen primero");
 
-        const storageRef = ref(storage, `prendas/${propietario}/${Date.now()}_${archivo.name}`);
-        
+        alert("Subiendo imagen...");
+
+        const formData = new FormData();
+        formData.append("image", archivo);
+
         try {
-            const snapshot = await uploadBytes(storageRef, archivo);
-            const urlDescarga = await getDownloadURL(snapshot.ref);
+            const respuesta = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+                method: "POST",
+                body: formData
+            });
+            const resultado = await respuesta.json();
+
+            if (!resultado.success) {
+                throw new Error("Fallo al subir la imagen a ImgBB");
+            }
+
+            const urlDescarga = resultado.data.url;
 
             await addDoc(collection(db, "prendas"), {
                 propietario: propietario,
@@ -117,12 +124,12 @@ if (btnSubir) {
                 fecha: new Date()
             });
             
-            alert("Prenda subida con éxito");
+            alert("¡Prenda subida con éxito!");
             if (archivoInput) archivoInput.value = '';
             cargarArmario();
         } catch (error) {
             console.error("Error al subir:", error);
-            alert("Error al subir la imagen.");
+            alert("Error al subir la imagen. Revisa la consola.");
         }
     });
 }
@@ -196,10 +203,33 @@ if (btnCompartir) {
     });
 }
 
-// Event Listeners para recargar galería al cambiar de usuario o filtro
+// Función para actualizar imagen base según el usuario
+function actualizarImagenBase() {
+    const propietario = document.getElementById('selector-propietario').value;
+    const capaBase = document.getElementById('capa-base');
+    
+    if (capaBase) {
+        if (propietario === 'sebastian') {
+            capaBase.src = 'base-sebastian.png';
+        } else if (propietario === 'manuela') {
+            capaBase.src = 'base-manuela.png';
+        }
+    }
+
+    const categorias = ['cabeza', 'torso', 'piernas', 'pies', 'accesorios'];
+    categorias.forEach(cat => {
+        const capa = document.getElementById(`capa-${cat}`);
+        if (capa) capa.src = '';
+    });
+}
+
+// Event Listeners
 const selectorPropietario = document.getElementById('selector-propietario');
 if (selectorPropietario) {
-    selectorPropietario.addEventListener('change', cargarArmario);
+    selectorPropietario.addEventListener('change', () => {
+        actualizarImagenBase();
+        cargarArmario();
+    });
 }
 
 const filtroCategoria = document.getElementById('filtro-categoria');
@@ -208,4 +238,5 @@ if (filtroCategoria) {
 }
 
 // Carga inicial
+actualizarImagenBase();
 cargarArmario();
