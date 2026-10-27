@@ -1,0 +1,42 @@
+.app-container {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+    font-family: sans-serif;
+}
+
+.escenario {
+    position: relative;
+    width: 400px;
+    height: 700px; /* Proporción de un teléfono móvil aprox */
+    background-color: #f0f0f0;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+/* Todas las capas comparten la misma posición absoluta */
+.capa-ropa {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none; /* Para que los clics no interfieran */
+}
+
+.galeria {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.miniatura {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    background: #e0e0e0;
+    cursor: pointer;
+    border-radius: 5px;
+}
